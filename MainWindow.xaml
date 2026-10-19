@@ -1,0 +1,184 @@
+<Window x:Class="KeepLTEConnect.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="KeepLTEConnect"
+        Height="560" Width="820" MinHeight="460" MinWidth="700"
+        Background="{StaticResource BgBrush}"
+        UseLayoutRounding="True"
+        Closing="Window_Closing">
+
+    <Window.Resources>
+        <ControlTemplate x:Key="SectionPanelTemplate" TargetType="{x:Type HeaderedContentControl}">
+            <Grid Margin="0,12,0,0">
+                <Border CornerRadius="6"
+                        BorderThickness="1"
+                        BorderBrush="{StaticResource BorderBrush}"
+                        Background="{StaticResource PanelBrush}"
+                        Padding="14,16,14,14">
+                    <ContentPresenter/>
+                </Border>
+                <Border Background="{StaticResource BgBrush}"
+                        Padding="6,0"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        Margin="14,-9,0,0">
+                    <ContentPresenter ContentSource="Header"/>
+                </Border>
+            </Grid>
+        </ControlTemplate>
+
+        <Style x:Key="SectionPanel" TargetType="{x:Type HeaderedContentControl}">
+            <Setter Property="Template" Value="{StaticResource SectionPanelTemplate}"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+        </Style>
+
+        <Style x:Key="HeaderText" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="FieldLabel" TargetType="{x:Type TextBlock}">
+            <Setter Property="Foreground" Value="{StaticResource MutedBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="13"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ⚡ CMW500 -->
+        <HeaderedContentControl Grid.Row="0" Style="{StaticResource SectionPanel}">
+            <HeaderedContentControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="⚡  CMW500"
+                               Foreground="{StaticResource AccentYellowBrush}"
+                               Style="{StaticResource HeaderText}"/>
+                </StackPanel>
+            </HeaderedContentControl.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="VISA Address:" Style="{StaticResource FieldLabel}"/>
+                <ComboBox Grid.Column="1"
+                          IsEditable="True"
+                          ItemsSource="{Binding VisaPresets}"
+                          Text="{Binding VisaAddress, UpdateSourceTrigger=PropertyChanged}"
+                          IsEnabled="{Binding NotRunning}"/>
+            </Grid>
+        </HeaderedContentControl>
+
+        <!-- 🔌 SIM Simulator -->
+        <HeaderedContentControl Grid.Row="1" Style="{StaticResource SectionPanel}">
+            <HeaderedContentControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="🔌  SIM Simulator"
+                               Foreground="{StaticResource AccentTealBrush}"
+                               Style="{StaticResource HeaderText}"/>
+                </StackPanel>
+            </HeaderedContentControl.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="COM Port:" Style="{StaticResource FieldLabel}"/>
+                <ComboBox Grid.Column="1"
+                          ItemsSource="{Binding ComPorts}"
+                          SelectedItem="{Binding SelectedCom}"
+                          IsEnabled="{Binding NotRunning}"/>
+                <Button Grid.Column="2"
+                        Content="🔄 Refresh"
+                        Click="Refresh_Click"
+                        IsEnabled="{Binding NotRunning}"
+                        Margin="8,0,0,0"/>
+            </Grid>
+        </HeaderedContentControl>
+
+        <!-- ▶ Watch control -->
+        <HeaderedContentControl Grid.Row="2" Style="{StaticResource SectionPanel}">
+            <HeaderedContentControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="▶  Watch"
+                               Foreground="{StaticResource AccentBlueBrush}"
+                               Style="{StaticResource HeaderText}"/>
+                </StackPanel>
+            </HeaderedContentControl.Header>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button Content="▶  Start"
+                        Style="{StaticResource StartButton}"
+                        Click="Start_Click"
+                        IsEnabled="{Binding NotRunning}"
+                        Margin="0,0,8,0"/>
+                <Button Grid.Column="1"
+                        Content="◼  Stop"
+                        Style="{StaticResource StopButton}"
+                        Click="Stop_Click"
+                        IsEnabled="{Binding Running}"/>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Ellipse Width="12" Height="12" VerticalAlignment="Center"
+                             Fill="{Binding StatusColor}"/>
+                    <TextBlock Text="{Binding Status}"
+                               FontSize="15" FontWeight="SemiBold"
+                               Margin="10,0,16,0"
+                               Foreground="{StaticResource ForegroundBrush}"/>
+                    <TextBlock Text="PSW:" Style="{StaticResource FieldLabel}"/>
+                    <TextBlock Text="{Binding PswState}"
+                               FontSize="15" FontWeight="SemiBold"
+                               Foreground="{StaticResource AccentGreenBrush}"/>
+                </StackPanel>
+            </Grid>
+        </HeaderedContentControl>
+
+        <!-- 📝 Log -->
+        <HeaderedContentControl Grid.Row="3" Style="{StaticResource SectionPanel}" Margin="0">
+            <HeaderedContentControl.Header>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="📝  Log"
+                               Foreground="{StaticResource ForegroundBrush}"
+                               Style="{StaticResource HeaderText}"/>
+                </StackPanel>
+            </HeaderedContentControl.Header>
+            <Border Background="#FF050B17"
+                    BorderBrush="{StaticResource BorderStrongBrush}"
+                    BorderThickness="1"
+                    CornerRadius="4"
+                    Padding="2">
+                <TextBox x:Name="LogBox"
+                         Text="{Binding LogText, Mode=OneWay}"
+                         IsReadOnly="True"
+                         Background="Transparent"
+                         BorderThickness="0"
+                         Foreground="#FFCBD5E1"
+                         FontFamily="Consolas, Cascadia Mono, Courier New"
+                         FontSize="12"
+                         AcceptsReturn="True"
+                         TextWrapping="NoWrap"
+                         VerticalScrollBarVisibility="Auto"
+                         HorizontalScrollBarVisibility="Auto"
+                         TextChanged="LogBox_TextChanged"/>
+            </Border>
+        </HeaderedContentControl>
+
+    </Grid>
+</Window>

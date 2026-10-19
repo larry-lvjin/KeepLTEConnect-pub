@@ -1,0 +1,59 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>KeepLTEConnect</RootNamespace>
+    <AssemblyName>KeepLTEConnect</AssemblyName>
+    <ApplicationIcon>KeepLTEConnect.ico</ApplicationIcon>
+  </PropertyGroup>
+
+  <!--
+    Release-only publish hardening.  Triggered by:
+        dotnet publish -c Release -r win-x64
+    Debug builds stay framework-dependent for fast iteration.
+  -->
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <PublishSingleFile>true</PublishSingleFile>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <SelfContained>true</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
+    <DefineConstants>$(DefineConstants);RELEASE</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="KeepLTEConnect.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.IO.Ports" Version="9.0.0" />
+  </ItemGroup>
+
+  <!--
+    Emits obj/<config>/<tfm>/BuildStamp.g.cs with a fresh UTC Unix-seconds
+    timestamp on EVERY build (no cache). Consumed silently at runtime.
+  -->
+  <Target Name="GenerateBuildStamp" BeforeTargets="BeforeCompile;CoreCompile">
+    <PropertyGroup>
+      <_StampFile>$(IntermediateOutputPath)BuildStamp.g.cs</_StampFile>
+      <_StampValue>$([System.DateTimeOffset]::UtcNow.ToUnixTimeSeconds())</_StampValue>
+    </PropertyGroup>
+    <MakeDir Directories="$(IntermediateOutputPath)" />
+    <ItemGroup>
+      <_StampLines Include="// &lt;auto-generated/&gt;" />
+      <_StampLines Include="namespace KeepLTEConnect%3B" />
+      <_StampLines Include="internal static class BuildStamp { internal const long Value = $(_StampValue)%3B }" />
+    </ItemGroup>
+    <WriteLinesToFile File="$(_StampFile)" Lines="@(_StampLines)" Overwrite="true" WriteOnlyWhenDifferent="false" />
+    <ItemGroup>
+      <Compile Include="$(_StampFile)" />
+    </ItemGroup>
+  </Target>
+
+</Project>
